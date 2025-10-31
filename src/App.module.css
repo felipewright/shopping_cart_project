@@ -1,0 +1,13 @@
+#header{
+  background-color: red;
+}
+
+#headerTitle{
+  background-color: green;
+}
+
+#navbar{
+  background-color: blue;
+  display: flex;
+  justify-content: center;
+}

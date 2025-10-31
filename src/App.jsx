@@ -1,18 +1,17 @@
 import { Link } from "react-router";
+import styles from "./App.module.css";
 
-export default function App(){
+export default function App() {
   return (
-    <div>
-      <header id="header">
-        <h1 id="header-title">SHOPPING CART PROJECT</h1>
-        <nav>
-          <ul id="navbar">
-            <li><Link className="nav-links" to="/">HOME</Link></li>
-            <li><Link className="nav-links" to="/shop">SHOP</Link></li>
-            <li><Link className="nav-links" to="/cart">CART</Link></li>
-          </ul>
-        </nav>
-      </header>
-    </div>
+    <header id={styles.header}>
+      <h1 id={styles.headerTitle}>SHOPPING CART PROJECT</h1>
+      <nav>
+        <ul id={styles.navbar}>
+          <li><Link className="nav-links" to="/">HOME</Link></li>
+          <li><Link className="nav-links" to="/shop">SHOP</Link></li>
+          <li><Link className="nav-links" to="/cart">CART</Link></li>
+        </ul>
+      </nav>
+    </header>
   )
 }
