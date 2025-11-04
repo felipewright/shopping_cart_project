@@ -1,24 +1,78 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useReducer, createContext } from "react";
 import { useParams } from "react-router";
 import ShopRender from "./Shop";
 import CartRender from "./Cart";
 import Home from "./Home";
-import ErrorPage from "./Error_page";
+import ErrorPage from "./ErrorPage";
 
-export const shopContext = React.createContext({
+
+export const shopContext = createContext({
     cartState: {},
     fetchedData: {},
     handlerFunctions: {}
 });
 
+function reducer(cart, action) {
+    switch (action.type) {
+        case "increment_amount": {
+            const existing = cart.find(el => el.id === action.id);
+            if (existing) {
+                return cart.map(el => {
+                    const newAmount = el.cartAmount + 1;
+                    return el.id === action.id && newAmount < 11
+                        ? { ...el, cartAmount: newAmount }
+                        : el;
+                });
+            } else {
+                return [...cart, { ...action.product, cartAmount: 1 }];
+            }
+        }
+        case "decrease_amount": {
+            const existing = cart.find(el => el.id === action.id);
+            if (!existing) {
+                return cart;
+            } else if (existing.cartAmount === 1) {
+                return cart.filter(el => el.id !== action.id);
+            } else {
+                return cart.map(el => {
+                    return el.id === action.id
+                        ? { ...el, cartAmount: el.cartAmount - 1 }
+                        : el;
+                });
+            }
+        }
+        case "set_amount": {
+            const existing = cart.find(el => el.id === action.id);
+            if (existing) {
+                return cart.map(el => {
+                    const newAmount = Math.min(action.setAmount, 10);
+                    return el.id === action.id
+                        ? { ...el, cartAmount: newAmount }
+                        : el;
+                });
+            } else {
+                return [...cart, { ...action.product, cartAmount: action.setAmount }];
+            }
+        }
+        case "delete": {
+            const existing = cart.find(el => el.id === action.id);
+            if (existing) {
+                return cart.filter(el => el.id !== action.id);
+            } else {
+                return cart;
+            }
+        }
+        default:
+            return cart;
+    }
+}
+
 const AppLogic = () => {
     const [cart, dispatch] = useReducer(reducer, []);
-    // REFACTOR ALL THE HANDLE FUNCTION INTO THE REDUCER TO MAKE THE CODE CLEANER
-
     const { section } = useParams();
+    console.log("Section is", section);
 
     const [fetchedData, setfetchedData] = useState(null);
-    // const [cart, setCart] = useState([]);
     const [error, setError] = useState(false);
     const [loading, setLoading] = useState(true);
 
@@ -33,7 +87,6 @@ const AppLogic = () => {
                 return response.json()
             })
             .then((res) => {
-
                 const dataArr = res.map(el => ({
                     key: crypto.randomUUID(),
                     id: el.id,
@@ -42,7 +95,6 @@ const AppLogic = () => {
                     cartAmount: 0,
                     imageUrl: el.image
                 }));
-
 
                 setfetchedData(dataArr);
             })
@@ -53,144 +105,36 @@ const AppLogic = () => {
     if (loading) return <p>Loading...</p>
     if (error) return <ErrorPage />;
 
-    // HANDLE CART FUNCTIONS
-
-    function reducer(cart, action) {
-        switch (action.type) {
-            case "increment_amount": {
-                const existing = cart.find(el => el.id === action.id);
-                if (existing) {
-                    return cart.map(el => {
-                        const newAmount = el.cartAmount + 1;
-                        return el.id === action.id && newAmount < 11
-                            ? { ...el, cartAmount: newAmount }
-                            : el;
-                    });
-                } else {
-                    if (!action.product) return cart;
-                    return [...cart, { ...action.product, cartAmount: 1 }];
-                }
-            }
-            case "decrease_amount": {
-                const existing = cart.find(el => el.id === action.id);
-                if (existing) {
-                    return cart.map(el => {
-                        const newAmount = el.cartAmount - 1;
-                        return el.id === action.id && newAmount > 0
-                            ? { ...el, cartAmount: newAmount }
-                            : el;
-                    });
-                }
-            }
-            case "set_amount": {
-                const existing = cart.find(el => el.id === action.id);
-                if (existing) {
-                    return cart.map(el => {
-                        const newAmount = action.setAmount;
-                        newAmount > 10 ? newAmount = 10 : newAmount;
-                        return el.id === action.id
-                            ? { ...el, cartAmount: newAmount }
-                            : el;
-                    });
-                } else {
-                    !action.product
-                        ? cart
-                        : [...cart, { ...action.product, cartAmount: action.setAmount }];
-                }
-            }
-            case "delete": {
-                const existing = cart.find(el => el.id === action.id);
-                if (existing) {
-                    cart.filter(el => el.id !== id)
-                }
-            }
-            default:
-                return cart;
-        }
-    }
-
-    const handleSetCart = (value, id) => {
-        value = Math.min(value, 10);
-
-        setCart(prev => {
-            const existing = prev.find(el => el.id === id)
-            if (existing) {
-                return prev.map(el =>
-                    el.id === id ? { ...el, cartAmount: value } : el
-                )
-            } else {
-                const product = fetchedData.find(el => el.id === id)
-                if (!product) return prev
-                return [...prev, { ...product, cartAmount: value }]
-            }
-        })
-    }
-
-    const handleIncreaseCart = (id) => {
-        setCart(prev => {
-            const existing = prev.find(el => el.id === id)
-            if (existing) {
-                return prev.map(el => {
-                    const newAmount = el.cartAmount + 1;
-                    return el.id === id && newAmount < 11 ? { ...el, cartAmount: newAmount } : el
-                }
-                )
-            } else {
-                const product = fetchedData.find(el => el.id === id)
-                if (!product) return prev
-                return [...prev, { ...product, cartAmount: 1 }]
-            }
-        })
-    }
-
-    const handleDecreaseCart = (id) => {
-        setCart(prev => {
-            const existing = prev.find(el => el.id === id);
-            if (!existing) return prev;
-
-            if (existing.cartAmount > 1) {
-                return prev.map(el =>
-                    el.id === id ? { ...el, cartAmount: el.cartAmount - 1 } : el
-                );
-            }
-            return prev.filter(el => el.id !== id);
-        });
-    };
-
-
-    const handleRemoveCart = (id) => {
-        console.log(handleRemoveCart);
-        setCart(prev => prev.filter(el => el.id !== id));
-    };
-
-
     // CONDITIONAL RENDERING
 
     if (section === "shop") {
+        console.log("Changed section to shop");
         return (
             <shopContext.Provider value={{ cart, fetchedData }}>
                 <ShopRender
                     renderData={fetchedData}
                     cart={cart}
-                    handleDecreaseCart={handleDecreaseCart}
-                    handleSetCart={handleSetCart}
-                    handleIncreaseCart={handleIncreaseCart}
+                    handleDecreaseCart={(id, product) => {dispatch({ type: "decrease_amount", id, product })}}
+                    handleSetCart={(id, product, value) => {dispatch({ type: "set_amount", id, product, setAmount: value })}}
+                    handleIncreaseCart={(id, product) => {dispatch({ type: "increment_amount", id, product })}}
                 />
             </shopContext.Provider>
         )
     } else if (section === "cart") {
+        console.log("Changed section to cart");
         return (
             <shopContext.Provider value={{ cart }}>
                 <CartRender
                     cart={cart}
-                    handleDecreaseCart={handleDecreaseCart}
-                    handleSetCart={handleSetCart}
-                    handleIncreaseCart={handleIncreaseCart}
-                    handleRemoveCart={handleRemoveCart}
+                    handleDecreaseCart={(id, product) => {dispatch({ type: "decrease_amount", id, product })}}
+                    handleSetCart={(id, product, value) => {dispatch({ type: "set_amount", id, product, setAmount: value })}}
+                    handleIncreaseCart={(id, product) => {dispatch({ type: "increment_amount", id, product })}}
+                    handleRemoveCart={(id) => {dispatch({ type: "delete", id })}}
                 />
             </shopContext.Provider>
         )
     } else {
+        console.log("Changed section to home");
         return (
             <Home />
         )

@@ -1,16 +1,17 @@
 import App from "./App";
+import AppLogic from "./Logic.jsx";
 import ErrorPage from "./ErrorPage";
 import { createBrowserRouter } from "react-router";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App defaultSection="home" />, 
+    element: <AppLogic defaultSection="home" />, 
     errorElement: <ErrorPage />,
   },
   {
     path: "/:section",
-    element: <App />,
+    element: <AppLogic />,
     errorElement: <ErrorPage />,
   },
 ]);

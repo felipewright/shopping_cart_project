@@ -1,4 +1,6 @@
-export default function ErrorPage() {
+import { Link } from "react-router";
+
+const ErrorPage = () => {
     return(
         <div>
             <h2>Unable to load page.</h2>
@@ -6,3 +8,5 @@ export default function ErrorPage() {
         </div>
     )
 }
+
+export default ErrorPage;
