@@ -1,19 +1,19 @@
 const CartComponent = ({ name, imageUrl, price, cartAmount, decreaseCart, setCart, increaseCart, handleRemoveCart, id }) => {
     return (
-        <div className={shopStyles.product}>
-            <div className={shopStyles.productImageContainer}>
-                <img className={shopStyles.productImage} src={imageUrl}></img>
+        <div>
+            <div>
+                <img src={imageUrl}></img>
             </div>
             <div>
-                <p className={shopStyles.productName}>{name}</p>
-                <p className={shopStyles.productPrice}>${price}</p>
+                <p>{name}</p>
+                <p>${price}</p>
             </div>
-            <div className={shopStyles.cartInput}>
+            <div>
                 <button onClick={() => decreaseCart(id)}>-</button>
                 <input onChange={(event) => setCart(id, parseInt(event.target.value))} type="number" max={10} value={cartAmount}></input>
                 <button onClick={() => increaseCart(id)}>+</button>
             </div>
-            <button className={CartStyles.removeButton} onClick={() => handleRemoveCart(id)}>Remove</button>
+            <button onClick={() => handleRemoveCart(id)}>Remove</button>
         </div>
     )
 }
@@ -23,8 +23,8 @@ const CartRender = ({ cart, handleDecreaseCart, handleSetCart, handleIncreaseCar
 
     return (
         cart && <>
-            <h2 className={shopStyles.sectionTitle}>CART</h2>
-            <div className={CartStyles.productsContainer}>
+            <h2>CART</h2>
+            <div>
                 {cart.map(el => {
                     const cartItem = cart?.find((item) => item.id === el.id);
                     const amount = cartItem ? cartItem.cartAmount : 0;

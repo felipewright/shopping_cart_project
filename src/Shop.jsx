@@ -1,29 +1,37 @@
-const ShopComponent = ({ name, imageUrl, price, cartAmount, decreaseCart, setCart, increaseCart, id }) => {
+const ShopComponent = ({ id, name, imageUrl, price, cartAmount, decreaseCart, setCart, increaseCart }) => {
+    const product = { id, name, price, imageUrl };
     return (
-        <div className={styles.product}>
-            <div className={styles.productImageContainer}>
-                <img className={styles.productImage} src={imageUrl}></img>
+        <div>
+            <div>
+                <img src={imageUrl} alt={name} />
             </div>
             <div>
-                <p className={styles.productName}>{name}</p>
-                <p className={styles.productPrice}>${price}</p>
+                <p>{name}</p>
+                <p>${price}</p>
             </div>
-            <div className={styles.cartInput}>
-                <button onClick={() => decreaseCart(id)}>-</button>
-                <input onChange={(event) => setCart(id, parseInt(event.target.value))} type="number" max={10} value={cartAmount}></input>
-                <button onClick={() => increaseCart(id)}>+</button>
+            <div>
+                <button onClick={() => decreaseCart(id, product)}>-</button>
+                <input
+                    type="number"
+                    max={10}
+                    min={0}
+                    value={cartAmount}
+                    onChange={(e) => setCart(id, product, Number(e.target.value))}
+                />
+                <button onClick={() => increaseCart(id, product)}>+</button>
             </div>
         </div>
-    )
-}
+    );
+};
+
 
 const ShopRender = ({ renderData, cart, handleDecreaseCart, handleSetCart, handleIncreaseCart }) => {
     console.log("RenderShop says that cart is", cart);
 
     return (
         renderData && <>
-            <h2 className={styles.sectionTitle}>PRODUCTS</h2>
-            <div className={styles.productsContainer}>
+            <h2>PRODUCTS</h2>
+            <div>
                 {renderData.map(el => {
                     const cartItem = cart?.find((item) => item.id === el.id);
                     const amount = cartItem ? cartItem.cartAmount : 0;
