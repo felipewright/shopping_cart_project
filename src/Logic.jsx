@@ -70,7 +70,6 @@ function reducer(cart, action) {
 const AppLogic = () => {
     const [cart, dispatch] = useReducer(reducer, []);
     const { section } = useParams();
-    console.log("Section is", section);
 
     const [fetchedData, setfetchedData] = useState(null);
     const [error, setError] = useState(false);
@@ -79,7 +78,7 @@ const AppLogic = () => {
     // FETCH DATA
 
     useEffect(() => {
-        fetch('https://fakestoreapi.com/products', { mode: "cors" })
+        fetch('https://api.escuelajs.co/api/v1/products', { mode: "cors" })
             .then((response) => {
                 if (response.status >= 400) {
                     throw new Error("server error");
@@ -93,10 +92,10 @@ const AppLogic = () => {
                     name: el.title,
                     price: el.price,
                     cartAmount: 0,
-                    imageUrl: el.image
+                    imageUrl: el.images[0]
                 }));
 
-                setfetchedData(dataArr);
+                setfetchedData(dataArr.slice(0, 16));
             })
             .catch(error => setError(true))
             .finally(() => setLoading(false));
@@ -108,33 +107,30 @@ const AppLogic = () => {
     // CONDITIONAL RENDERING
 
     if (section === "shop") {
-        console.log("Changed section to shop");
         return (
             <shopContext.Provider value={{ cart, fetchedData }}>
                 <ShopRender
                     renderData={fetchedData}
                     cart={cart}
-                    handleDecreaseCart={(id, product) => {dispatch({ type: "decrease_amount", id, product })}}
-                    handleSetCart={(id, product, value) => {dispatch({ type: "set_amount", id, product, setAmount: value })}}
-                    handleIncreaseCart={(id, product) => {dispatch({ type: "increment_amount", id, product })}}
+                    handleDecreaseCart={(id, product) => { dispatch({ type: "decrease_amount", id, product }) }}
+                    handleSetCart={(id, product, value) => { dispatch({ type: "set_amount", id, product, setAmount: value }) }}
+                    handleIncreaseCart={(id, product) => { dispatch({ type: "increment_amount", id, product }) }}
                 />
             </shopContext.Provider>
         )
     } else if (section === "cart") {
-        console.log("Changed section to cart");
         return (
             <shopContext.Provider value={{ cart }}>
                 <CartRender
                     cart={cart}
-                    handleDecreaseCart={(id, product) => {dispatch({ type: "decrease_amount", id, product })}}
-                    handleSetCart={(id, product, value) => {dispatch({ type: "set_amount", id, product, setAmount: value })}}
-                    handleIncreaseCart={(id, product) => {dispatch({ type: "increment_amount", id, product })}}
-                    handleRemoveCart={(id) => {dispatch({ type: "delete", id })}}
+                    handleDecreaseCart={(id, product) => { dispatch({ type: "decrease_amount", id, product }) }}
+                    handleSetCart={(id, product, value) => { dispatch({ type: "set_amount", id, product, setAmount: value }) }}
+                    handleIncreaseCart={(id, product) => { dispatch({ type: "increment_amount", id, product }) }}
+                    handleRemoveCart={(id) => { dispatch({ type: "delete", id }) }}
                 />
             </shopContext.Provider>
         )
     } else {
-        console.log("Changed section to home");
         return (
             <Home />
         )
